@@ -1,6 +1,7 @@
 # Built application files
 *.apk
 *.ap_
+out/
 
 # Files for the Dalvik VM
 *.dex
@@ -24,3 +25,9 @@ proguard/
 
 # Log Files
 *.log
+
+# IntellIJ
+*.iml
+
+# DS_Store
+*.DS_Store
