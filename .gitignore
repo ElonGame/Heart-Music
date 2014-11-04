@@ -28,6 +28,7 @@ proguard/
 
 # IntellIJ
 *.iml
+.idea/
 
 # DS_Store
 *.DS_Store
