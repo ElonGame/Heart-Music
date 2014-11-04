@@ -8,12 +8,10 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.MediaController.MediaPlayerControl;
 import com.musicplayer.heartmusic.MusicService.MusicBinder;
 
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ import java.util.Comparator;
  * Sue Smith - February 2014
  */
 
-public class MainActivity extends Activity implements MediaPlayerControl {
+public class MainActivity extends Activity {
 
     dbHelper helper;
     SQLiteDatabase db;
@@ -42,9 +40,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 	//binding
 	private boolean musicBound=false;
 
-	//controller
-	private MusicController controller;
-
 	//activity and playback pause flags
 	private boolean paused=false, playbackPaused=false;
 
@@ -54,13 +49,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return listActivity;
     }
 
-    public MusicController getController() {
-        return controller;
-    }
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        listActivity = this;
+
 		setContentView(R.layout.activity_main);
 
         helper = new dbHelper(this);
@@ -92,7 +85,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
 
 		//setup controller
-		setController();
 	}
 
 	//connect to the service
@@ -128,19 +120,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 	//user song select
 	public void songPicked(View view){
         Intent intentPlaybackActivity = new Intent(MainActivity.this, PlaybackActivity.class);
-        //intentPlaybackActivity.putExtra("songLst", songList);
 
 		musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
 		musicSrv.playSong();
-        Log.d("songPicked", view.getTag().toString());
-        Log.d("title", songList.get(musicSrv.getPosn()).getTitle());
-        Log.d("artist", songList.get(musicSrv.getPosn()).getArtist());
 
         if(playbackPaused){
-			setController();
 			playbackPaused=false;
 		}
-		controller.show(0);
         startActivity(intentPlaybackActivity);
 	}
 
@@ -161,16 +147,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         case R.id.action_bpm:
             musicSrv.setBpmMode();
             break;
-		case R.id.action_end:
-			stopService(playIntent);
-			musicSrv=null;
-			System.exit(0);
+		case R.id.action_playlist:
+            Intent intentPlaybackActivity = new Intent(MainActivity.this, PlaybackActivity.class);
+            startActivity(intentPlaybackActivity);
 			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-
 
 	//method to retrieve song info from device
 	public void loadSongList() {
@@ -213,107 +196,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
 	@Override
-	public boolean canPause() {
-		return true;
-	}
-
-	@Override
-	public boolean canSeekBackward() {
-		return true;
-	}
-
-	@Override
-	public boolean canSeekForward() {
-		return true;
-	}
-
-	@Override
-	public int getAudioSessionId() {
-		return 0;
-	}
-
-	@Override
-	public int getBufferPercentage() {
-		return 0;
-	}
-
-	@Override
-	public int getCurrentPosition() {
-		if(musicSrv!=null && musicBound && musicSrv.isPng())
-			return musicSrv.getPosn();
-		else return 0;
-	}
-
-	@Override
-	public int getDuration() {
-		if(musicSrv!=null && musicBound && musicSrv.isPng())
-			return musicSrv.getDur();
-		else return 0;
-	}
-
-	@Override
-	public boolean isPlaying() {
-		if(musicSrv!=null && musicBound)
-			return musicSrv.isPng();
-		return false;
-	}
-
-	@Override
-	public void pause() {
-		playbackPaused=true;
-		musicSrv.pausePlayer();
-	}
-
-	@Override
-	public void seekTo(int pos) {
-		musicSrv.seek(pos);
-	}
-
-	@Override
-	public void start() {
-		musicSrv.go();
-	}
-
-	//set the controller up
-	private void setController(){
-		controller = new MusicController(this);
-		//set previous and next button listeners
-		controller.setPrevNextListeners(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				playNext();
-			}
-		}, new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				playPrev();
-			}
-		});
-		//set and show
-		controller.setMediaPlayer(this);
-		controller.setAnchorView(findViewById(R.id.song_list));
-		controller.setEnabled(true);
-	}
-
-	private void playNext(){
-		musicSrv.playNext();
-		if(playbackPaused){ 
-			setController();
-			playbackPaused=false;
-		}
-		controller.show(0);
-	}
-
-	private void playPrev(){
-		musicSrv.playPrev();
-		if(playbackPaused){
-			setController();
-			playbackPaused=false;
-		}
-		controller.show(0);
-	}
-
-	@Override
 	protected void onPause(){
 		super.onPause();
 		paused=true;
@@ -323,14 +205,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 	protected void onResume(){
 		super.onResume();
 		if(paused){
-			setController();
 			paused=false;
 		}
 	}
 
 	@Override
 	protected void onStop() {
-		//controller.hide();
 		super.onStop();
 	}
 
@@ -344,4 +224,5 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     public MusicService getMusicSrv() {
         return musicSrv;
     }
+    public ArrayList<Song> getSongList() { return songList; }
 }

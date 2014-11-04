@@ -13,13 +13,13 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14pt"
-            android:id="@+id/song" android:layout_gravity="center_horizontal" android:layout_weight="0.75"/>
+            android:textSize="12pt"
+            android:id="@+id/current_song" android:layout_gravity="center_horizontal" android:layout_weight="0.75"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10pt"
-            android:id="@+id/artist" android:layout_gravity="center_horizontal" android:layout_weight="0.13"/>
+            android:id="@+id/current_artist" android:layout_gravity="center_horizontal" android:layout_weight="0.13"/>
 
     <LinearLayout
             android:orientation="horizontal"
@@ -38,8 +38,7 @@
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:textSize="8pt"
-                android:inputType="number"
-                android:id="@+id/heart_rate" android:layout_weight="0.94" android:text="80"/>
+                android:id="@+id/heart_rate" android:layout_weight="0.94"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -50,7 +49,7 @@
                 android:layout_width="44dp"
                 android:layout_height="wrap_content"
                 android:textSize="8pt"
-                android:id="@+id/bpm" android:text="120"/>
+                android:id="@+id/bpm" />
     </LinearLayout>
 
     <LinearLayout

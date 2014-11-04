@@ -16,7 +16,7 @@
         android:title="BPM"/>
 
 	<item
-		android:id="@+id/action_end"
+		android:id="@+id/action_playlist"
 		android:icon="@drawable/end"
 		android:orderInCategory="3"
 		android:showAsAction="always"

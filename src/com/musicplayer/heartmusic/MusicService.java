@@ -246,4 +246,16 @@ MediaPlayer.OnCompletionListener {
         else bpmMode=true;
     }
 
+    public int getSongPosn() {
+        return songPosn;
+    }
+
+    public boolean isBpmMode() {
+        return bpmMode;
+    }
+
+    public void setHeartRate(int hr) {
+        heartRate = hr;
+    }
+
 }

@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +14,7 @@ import android.widget.MediaController.MediaPlayerControl;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 
 /**
@@ -30,25 +30,25 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
     private boolean musicBound=true;
     private ArrayList<Song> songList;
 
-    private LayoutInflater songInfo;
-
-
-
     //activity and playback pause flags
     private boolean paused=false, playbackPaused=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.play);
 
         musicSrv = ListActivity.getMusicSrv();
 
-        Intent intent = getIntent();
-        //songList = (ArrayList<Song>)intent.getSerializableExtra("songList");
-
         setSongInfo();
+
         setController();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
         controller.show(0);
     }
 
@@ -69,9 +69,9 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
             case R.id.action_bpm:
                 musicSrv.setBpmMode();
                 break;
-            case R.id.action_end:
-                musicSrv=null;
-                System.exit(0);
+            case R.id.action_playlist:
+                controller.hide();
+                this.finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -140,24 +140,27 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
     }
 
     private void setSongInfo(){
-        View playView = (View) getLayoutInflater().inflate(R.layout.play, null);
-        TextView songView = (TextView) playView.findViewById(R.id.song);
-        TextView artistView = (TextView) playView.findViewById(R.id.artist);
-        TextView bpmView = (TextView) playView.findViewById(R.id.bpm);
+        TextView songView = (TextView) findViewById(R.id.current_song);
+        TextView artistView = (TextView) findViewById(R.id.current_artist);
+        TextView heartRateView = (TextView) findViewById(R.id.heart_rate);
+        TextView bpmView = (TextView) findViewById(R.id.bpm);
 
-        songList = new ArrayList<Song>();
+        songList = ListActivity.getSongList();
         //get songs from device
-        loadSongList();
-        Song currSong = songList.get(getCurrentPosition());
-
-        Log.d("id", new Integer(getCurrentPosition()).toString());
-        Log.d("title", currSong.getTitle());
-        Log.d("artist", currSong.getArtist());
+        Song currSong = songList.get(musicSrv.getSongPosn());
 
         songView.setText(currSong.getTitle());
         artistView.setText(currSong.getArtist());
-        //bpmView.setText(currSong.getBpm());
+        bpmView.setText(new Integer(currSong.getBpm()).toString());
 
+        int heartRate = new Random().nextInt(songList.size()) + 60;
+        musicSrv.setHeartRate(heartRate);
+
+        if (musicSrv.isBpmMode()) {
+            heartRateView.setText(new Integer(heartRate).toString());
+        } else {
+            heartRateView.setText("");
+        }
     }
 
     //set the controller up
@@ -177,34 +180,8 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         });
         //set and show
         controller.setMediaPlayer(this);
-        controller.setAnchorView(findViewById(R.id.song_list));
+        controller.setAnchorView(findViewById(R.id.controls_bottom));
         controller.setEnabled(true);
-    }
-
-    //method to retrieve song info from device
-    public void loadSongList() {
-        //query external audio
-        ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-        //iterate over results if valid
-        if(musicCursor!=null && musicCursor.moveToFirst()){
-            //get columns
-            int titleColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Media.ARTIST);
-            //add songs to list
-            do {
-                long thisId = musicCursor.getLong(idColumn);
-                String thisTitle = musicCursor.getString(titleColumn);
-                String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist, 0));
-            }
-            while (musicCursor.moveToNext());
-        }
     }
 
     private void playNext(){
@@ -213,6 +190,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
             setController();
             playbackPaused=false;
         }
+        setSongInfo();
         controller.show(0);
     }
 
@@ -222,6 +200,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
             setController();
             playbackPaused=false;
         }
+        setSongInfo();
         controller.show(0);
     }
 
@@ -238,13 +217,22 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
             setController();
             paused=false;
         }
-        controller.show(0);
+        //controller.show(0);
     }
 
     @Override
     protected void onStop() {
         controller.hide();
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
+        controller.hide();
+
+        Log.e("Test","Back Button Clicked");
+
+        finish();
     }
 
 }
