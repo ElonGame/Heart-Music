@@ -1,4 +1,4 @@
 Heart-Music
 ===========
 
-Anroid Music Player with Heart Rate Sensor
+Fun android music player using a heart rate sensor with Arduino.
