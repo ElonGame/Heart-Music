@@ -1,0 +1,66 @@
+<LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+        android:weightSum="1">
+
+    <ImageView
+            android:layout_width="384dp"
+            android:layout_height="333dp"
+            android:id="@+id/imageView" android:layout_gravity="center_horizontal" android:src="@drawable/heart"
+            />
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14pt"
+            android:id="@+id/song" android:layout_gravity="center_horizontal" android:layout_weight="0.75"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10pt"
+            android:id="@+id/artist" android:layout_gravity="center_horizontal" android:layout_weight="0.13"/>
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="20dp" android:layout_weight="0.13" android:weightSum="1"
+            android:gravity="fill">
+
+        <TextView
+                android:layout_width="33dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5pt"
+                android:textSize="8pt"
+                android:text="HR"
+                />
+        <TextView
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textSize="8pt"
+                android:inputType="number"
+                android:id="@+id/heart_rate" android:layout_weight="0.94" android:text="80"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="8pt"
+                android:text="BPM"
+                android:layout_weight="0.11"/>
+        <TextView
+                android:layout_width="44dp"
+                android:layout_height="wrap_content"
+                android:textSize="8pt"
+                android:id="@+id/bpm" android:text="120"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/controls_bottom"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_gravity="bottom|left"
+            android:layout_margin="0dip"
+            android:orientation="horizontal">
+        <include layout="@layout/controls" android:layout_height="173dp"/>
+    </LinearLayout>
+
+</LinearLayout>
