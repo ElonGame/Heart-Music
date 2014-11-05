@@ -180,7 +180,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         });
         //set and show
         controller.setMediaPlayer(this);
-        controller.setAnchorView(findViewById(R.id.controls_bottom));
+        controller.setAnchorView(findViewById(R.id.mediaController));
         controller.setEnabled(true);
     }
 
