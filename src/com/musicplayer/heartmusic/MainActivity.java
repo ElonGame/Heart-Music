@@ -127,6 +127,7 @@ public class MainActivity extends Activity {
         if(playbackPaused){
 			playbackPaused=false;
 		}
+
         startActivity(intentPlaybackActivity);
 	}
 
@@ -170,12 +171,16 @@ public class MainActivity extends Activity {
 					(android.provider.MediaStore.Audio.Media._ID);
 			int artistColumn = musicCursor.getColumnIndex
 					(android.provider.MediaStore.Audio.Media.ARTIST);
+            int filePathColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.DATA);
+
 			//add songs to list
 			do {
 				long thisId = musicCursor.getLong(idColumn);
 				String thisTitle = musicCursor.getString(titleColumn);
-				String thisArtist = musicCursor.getString(artistColumn);
-				songList.add(new Song(thisId, thisTitle, thisArtist, 0));
+                String thisArtist = musicCursor.getString(artistColumn);
+                String thisFilePath = musicCursor.getString(filePathColumn);
+				songList.add(new Song(thisId, thisTitle, thisArtist, thisFilePath, 0));
 			} 
 			while (musicCursor.moveToNext());
 		}
@@ -190,6 +195,7 @@ public class MainActivity extends Activity {
             values.put("id", song.getID());
             values.put("title", song.getTitle());
             values.put("artist", song.getArtist());
+            values.put("path", song.getFilePath());
             values.put("bpm", 60 + i);
             db.insert("BPM", null, values);
         }

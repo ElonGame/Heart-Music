@@ -16,7 +16,7 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE BPM (id INTEGER, title TEXT, artist TEXT, bpm INTEGER);");
+        db.execSQL("CREATE TABLE BPM (id INTEGER, title TEXT, artist TEXT, path TEXT, bpm INTEGER);");
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
