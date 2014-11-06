@@ -16,10 +16,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Random;
 
-
-/**
- * Created by dongju on 14. 10. 30..
- */
 public class PlaybackActivity extends Activity implements MediaPlayerControl{
     //controller
     private MusicController controller;
@@ -27,11 +23,11 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
     private MainActivity ListActivity = MainActivity.getInstance();
 
     private MusicService musicSrv;
-    private boolean musicBound=true;
+    private boolean musicBound = true;
     private ArrayList<Song> songList;
 
     //activity and playback pause flags
-    private boolean paused=false, playbackPaused=false;
+    private boolean paused = false, playbackPaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,28 +100,28 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
 
     @Override
     public int getCurrentPosition() {
-        if(musicSrv!=null && musicBound && musicSrv.isPng())
+        if (musicSrv != null && musicBound && musicSrv.isPng())
             return musicSrv.getPosn();
         else return 0;
     }
 
     @Override
     public int getDuration() {
-        if(musicSrv!=null && musicBound && musicSrv.isPng())
+        if (musicSrv != null && musicBound && musicSrv.isPng())
             return musicSrv.getDur();
         else return 0;
     }
 
     @Override
     public boolean isPlaying() {
-        if(musicSrv!=null && musicBound)
+        if (musicSrv != null && musicBound)
             return musicSrv.isPng();
         return false;
     }
 
     @Override
     public void pause() {
-        playbackPaused=true;
+        playbackPaused = true;
         musicSrv.pausePlayer();
     }
 
@@ -139,7 +135,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         musicSrv.go();
     }
 
-    private void setSongInfo(){
+    private void setSongInfo() {
         TextView songView = (TextView) findViewById(R.id.current_song);
         TextView artistView = (TextView) findViewById(R.id.current_artist);
         TextView heartRateView = (TextView) findViewById(R.id.heart_rate);
@@ -164,7 +160,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
     }
 
     //set the controller up
-    private void setController(){
+    private void setController() {
         controller = new MusicController(this);
         //set previous and next button listeners
         controller.setPrevNextListeners(new View.OnClickListener() {
@@ -184,40 +180,39 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         controller.setEnabled(true);
     }
 
-    private void playNext(){
+    private void playNext() {
         musicSrv.playNext();
-        if(playbackPaused){
+        if (playbackPaused) {
             setController();
-            playbackPaused=false;
+            playbackPaused = false;
         }
         setSongInfo();
         controller.show(0);
     }
 
-    private void playPrev(){
+    private void playPrev() {
         musicSrv.playPrev();
-        if(playbackPaused){
+        if (playbackPaused) {
             setController();
-            playbackPaused=false;
+            playbackPaused = false;
         }
         setSongInfo();
         controller.show(0);
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
-        paused=true;
+        paused = true;
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
-        if(paused){
+        if (paused) {
             setController();
-            paused=false;
+            paused = false;
         }
-        //controller.show(0);
     }
 
     @Override

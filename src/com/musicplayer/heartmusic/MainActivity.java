@@ -18,30 +18,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-/*
- * This is demo code to accompany the Mobiletuts+ series:
- * Android SDK: Creating a Music Player
- * 
- * Sue Smith - February 2014
- */
-
 public class MainActivity extends Activity {
-
     dbHelper helper;
     SQLiteDatabase db;
 
-	//song list variables
-	private ArrayList<Song> songList;
-	private ListView songView;
+    //song list variables
+    private ArrayList<Song> songList;
+    private ListView songView;
 
-	//service
-	private MusicService musicSrv;
-	private Intent playIntent;
-	//binding
-	private boolean musicBound=false;
+    //service
+    private MusicService musicSrv;
+    private Intent playIntent;
+    //binding
+    private boolean musicBound = false;
 
-	//activity and playback pause flags
-	private boolean paused=false, playbackPaused=false;
+    //activity and playback pause flags
+    private boolean paused = false, playbackPaused = false;
 
     private static MainActivity listActivity = new MainActivity();
 
@@ -49,12 +41,12 @@ public class MainActivity extends Activity {
         return listActivity;
     }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         listActivity = this;
 
-		setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
         helper = new dbHelper(this);
 
@@ -65,126 +57,123 @@ public class MainActivity extends Activity {
         }
 
         //retrieve list view
-		songView = (ListView)findViewById(R.id.song_list);
-		//instantiate list
-		songList = new ArrayList<Song>();
-		//get songs from device
-		loadSongList();
+        songView = (ListView) findViewById(R.id.song_list);
+        //instantiate list
+        songList = new ArrayList<Song>();
+        //get songs from device
+        loadSongList();
 
         updateBPMInfo(songList);
 
-		//sort alphabetically by title
-		Collections.sort(songList, new Comparator<Song>(){
-			public int compare(Song a, Song b){
-				return a.getTitle().compareTo(b.getTitle());
-			}
-		});
-		//create and set adapter
-		SongAdapter songAdt = new SongAdapter(this, songList);
-		songView.setAdapter(songAdt);
+        //sort alphabetically by title
+        Collections.sort(songList, new Comparator<Song>() {
+            public int compare(Song a, Song b) {
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
+        //create and set adapter
+        SongAdapter songAdt = new SongAdapter(this, songList);
+        songView.setAdapter(songAdt);
+    }
 
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection() {
 
-		//setup controller
-	}
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicBinder binder = (MusicBinder)service;
+            //get service
+            musicSrv = binder.getService();
+            //pass list
+            musicSrv.setList(songList);
+            musicBound = true;
+        }
 
-	//connect to the service
-	private ServiceConnection musicConnection = new ServiceConnection(){
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
 
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			MusicBinder binder = (MusicBinder)service;
-			//get service
-			musicSrv = binder.getService();
-			//pass list
-			musicSrv.setList(songList);
-			musicBound = true;
-		}
+    //start and bind the service when the activity starts
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (playIntent == null) {
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
 
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			musicBound = false;
-		}
-	};
-
-	//start and bind the service when the activity starts
-	@Override
-	protected void onStart() {
-		super.onStart();
-		if(playIntent==null){
-			playIntent = new Intent(this, MusicService.class);
-			bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-			startService(playIntent);
-		}
-	}
-
-	//user song select
-	public void songPicked(View view){
+    //user song select
+    public void songPicked(View view) {
         Intent intentPlaybackActivity = new Intent(MainActivity.this, PlaybackActivity.class);
 
-		musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-		musicSrv.playSong();
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
 
-        if(playbackPaused){
-			playbackPaused=false;
-		}
+        if (playbackPaused) {
+            playbackPaused=false;
+        }
 
         startActivity(intentPlaybackActivity);
-	}
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu, menu);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
-	}
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		//menu item selected
-		switch (item.getItemId()) {
-		case R.id.action_shuffle:
-			musicSrv.setShuffle();
-			break;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //menu item selected
+        switch (item.getItemId()) {
+        case R.id.action_shuffle:
+            musicSrv.setShuffle();
+            break;
         case R.id.action_bpm:
             musicSrv.setBpmMode();
             break;
-		case R.id.action_playlist:
+        case R.id.action_playlist:
             Intent intentPlaybackActivity = new Intent(MainActivity.this, PlaybackActivity.class);
             startActivity(intentPlaybackActivity);
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+            break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-	//method to retrieve song info from device
-	public void loadSongList() {
-		//query external audio
-		ContentResolver musicResolver = getContentResolver();
-		Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-		//iterate over results if valid
-		if(musicCursor!=null && musicCursor.moveToFirst()){
-			//get columns
-			int titleColumn = musicCursor.getColumnIndex
-					(android.provider.MediaStore.Audio.Media.TITLE);
-			int idColumn = musicCursor.getColumnIndex
-					(android.provider.MediaStore.Audio.Media._ID);
-			int artistColumn = musicCursor.getColumnIndex
-					(android.provider.MediaStore.Audio.Media.ARTIST);
+    //method to retrieve song info from device
+    public void loadSongList() {
+        //query external audio
+        ContentResolver musicResolver = getContentResolver();
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        //iterate over results if valid
+        if(musicCursor!=null && musicCursor.moveToFirst()){
+            //get columns
+            int titleColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ARTIST);
             int filePathColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.DATA);
 
-			//add songs to list
-			do {
-				long thisId = musicCursor.getLong(idColumn);
-				String thisTitle = musicCursor.getString(titleColumn);
+            //add songs to list
+            do {
+                long thisId = musicCursor.getLong(idColumn);
+                String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
                 String thisFilePath = musicCursor.getString(filePathColumn);
-				songList.add(new Song(thisId, thisTitle, thisArtist, thisFilePath, 0));
-			} 
-			while (musicCursor.moveToNext());
-		}
-	}
+                songList.add(new Song(thisId, thisTitle, thisArtist, thisFilePath, 0));
+            } 
+            while (musicCursor.moveToNext());
+        }
+    }
 
     public void updateBPMInfo(ArrayList<Song> SongList) {
         for (int i = 0; i < SongList.size(); i++) {
@@ -201,31 +190,31 @@ public class MainActivity extends Activity {
         }
     }
 
-	@Override
-	protected void onPause(){
-		super.onPause();
-		paused=true;
-	}
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
+    }
 
-	@Override
-	protected void onResume(){
-		super.onResume();
-		if(paused){
-			paused=false;
-		}
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (paused) {
+            paused = false;
+        }
+    }
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 
-	@Override
-	protected void onDestroy() {
-		stopService(playIntent);
-		musicSrv=null;
-		super.onDestroy();
-	}
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv = null;
+        super.onDestroy();
+    }
 
     public MusicService getMusicSrv() {
         return musicSrv;

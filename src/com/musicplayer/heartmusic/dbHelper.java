@@ -4,9 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by dongju on 14. 10. 9..
- */
 public class dbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "heartmusic.db";
     private static final int DATABASE_VERSION = 1;
