@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.musicplayer.heartmusic.MusicService.MusicBinder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ListIterator;
 
 public class MainActivity extends Activity {
     dbHelper helper;
@@ -63,7 +65,7 @@ public class MainActivity extends Activity {
         //get songs from device
         loadSongList();
 
-        updateBPMInfo(songList);
+        loadBpmInfo();
 
         //sort alphabetically by title
         Collections.sort(songList, new Comparator<Song>() {
@@ -175,19 +177,46 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void updateBPMInfo(ArrayList<Song> SongList) {
-        for (int i = 0; i < SongList.size(); i++) {
-            Song song = SongList.get(i);
-            song.setBpm(60 + i);
-            ContentValues values = new ContentValues();
+    public void loadBpmInfo() {
+        ListIterator<Song> songs = songList.listIterator();
 
-            values.put("id", song.getID());
-            values.put("title", song.getTitle());
-            values.put("artist", song.getArtist());
-            values.put("path", song.getFilePath());
-            values.put("bpm", 60 + i);
-            db.insert("BPM", null, values);
+        while (songs.hasNext()) {
+            Song currSong = songs.next();
+            long id = currSong.getID();
+            int bpm;
+
+            String[] selectionArgs = { new Long(id).toString() };
+            Cursor bpmCursor = db.rawQuery("SELECT * FROM BPM WHERE id=?", selectionArgs);
+            int bpmColumn = bpmCursor.getColumnIndex("bpm");
+
+            if (bpmCursor.getCount() != 0) {
+                bpmCursor.moveToFirst();
+                bpm = bpmCursor.getInt(bpmColumn);
+            } else {
+                bpm = calculateBPM(currSong);
+
+                ContentValues values = new ContentValues();
+
+                values.put("id", id);
+                values.put("title", currSong.getTitle());
+                values.put("artist", currSong.getArtist());
+                values.put("path", currSong.getFilePath());
+                values.put("bpm", bpm);
+
+                db.insert("BPM", null, values);
+            }
+
+            currSong.setBpm(bpm);
+            songs.set(currSong);
         }
+    }
+
+    public int calculateBPM(Song song) {
+        BeatDetector music = new BeatDetector();
+        music.loadWavFile(song.getFilePath());
+        music.calcBands();
+        music.diffBands();
+        return music.getBPM();
     }
 
     @Override
