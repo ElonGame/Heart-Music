@@ -74,7 +74,6 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
                 musicSrv.setBpmMode();
                 break;
             case R.id.action_playlist:
-                controller.hide();
                 this.finish();
                 break;
         }
@@ -211,6 +210,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
     @Override
     protected void onPause() {
         super.onPause();
+        controller.hide();
         paused = true;
     }
 
