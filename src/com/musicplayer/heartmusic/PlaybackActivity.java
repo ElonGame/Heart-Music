@@ -219,6 +219,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         super.onResume();
         if (paused) {
             setController();
+            controller.show(0);
             paused = false;
         }
     }
