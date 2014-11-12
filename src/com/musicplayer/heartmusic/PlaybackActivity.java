@@ -29,9 +29,17 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
     //activity and playback pause flags
     private boolean paused = false, playbackPaused = false;
 
+
+    private static PlaybackActivity playbackActivity = new PlaybackActivity();
+
+    public static PlaybackActivity getInstance() {
+        return playbackActivity;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        playbackActivity = this;
 
         setContentView(R.layout.play);
 
@@ -135,7 +143,7 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         musicSrv.go();
     }
 
-    private void setSongInfo() {
+    public void setSongInfo() {
         TextView songView = (TextView) findViewById(R.id.current_song);
         TextView artistView = (TextView) findViewById(R.id.current_artist);
         TextView heartRateView = (TextView) findViewById(R.id.heart_rate);
