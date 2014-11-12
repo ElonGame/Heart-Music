@@ -119,10 +119,12 @@ MediaPlayer.OnCompletionListener {
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        PlaybackActivity playbackActivity = PlaybackActivity.getInstance();
         //check if playback has reached the end of a track
         if(player.getCurrentPosition()>0){
             mp.reset();
             playNext();
+            playbackActivity.setSongInfo();
         }
     }
 
