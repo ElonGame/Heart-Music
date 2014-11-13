@@ -241,6 +241,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         stopService(playIntent);
+        unbindService(musicConnection);
         musicSrv = null;
         super.onDestroy();
     }
