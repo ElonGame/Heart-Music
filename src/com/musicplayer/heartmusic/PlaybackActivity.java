@@ -195,7 +195,6 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
             playbackPaused = false;
         }
         setSongInfo();
-        controller.show(0);
     }
 
     private void playPrev() {
@@ -205,7 +204,6 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
             playbackPaused = false;
         }
         setSongInfo();
-        controller.show(0);
     }
 
     @Override
@@ -220,7 +218,6 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
         super.onResume();
         if (paused) {
             setController();
-            controller.show(0);
             paused = false;
         }
     }
