@@ -74,7 +74,8 @@ public class PlaybackActivity extends Activity implements MediaPlayerControl{
                 musicSrv.setBpmMode();
                 break;
             case R.id.action_playlist:
-                this.finish();
+                Intent intentListActivity = new Intent(PlaybackActivity.this, MainActivity.class);
+                startActivity(intentListActivity);
                 break;
         }
         return super.onOptionsItemSelected(item);
