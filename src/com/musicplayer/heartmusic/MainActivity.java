@@ -189,7 +189,7 @@ public class MainActivity extends Activity {
             Cursor bpmCursor = db.rawQuery("SELECT * FROM BPM WHERE id=?", selectionArgs);
             int bpmColumn = bpmCursor.getColumnIndex("bpm");
 
-            if (bpmCursor.getCount() != 0) {
+            if (bpmCursor.getCount() > 0) {
                 bpmCursor.moveToFirst();
                 bpm = bpmCursor.getInt(bpmColumn);
             } else {
